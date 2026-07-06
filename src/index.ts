@@ -1,5 +1,7 @@
 type ChatMessage = { role: "user" | "assistant"; content: string };
 import { handleSocial } from "./social";
+import { handleAdmin } from "./admin";
+import { trackEvent } from "./analytics";
 
 const SYSTEM_PROMPT = `تو «چی‌چی»، یک دستیار فارسی برای انتخاب غذا و فیلم هستی.
 
@@ -44,6 +46,7 @@ function validMessages(value: unknown): value is ChatMessage[] {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    if (url.pathname === "/api/admin/stats") return handleAdmin(request, env as Env & { ADMIN_TOKEN?: string });
     if (url.pathname.startsWith("/api/social/")) return handleSocial(request, env, url.pathname);
     if (url.pathname !== "/api/chat") return env.ASSETS.fetch(request);
     if (request.method !== "POST") return json({ error: "روش درخواست نامعتبر است." }, 405);
@@ -71,6 +74,10 @@ export default {
         ? (result as { response?: unknown }).response
         : undefined;
       if (typeof reply !== "string" || !reply.trim()) throw new Error("Empty AI response");
+      const category = /فیلم|سریال|سینما|ژانر/u.test(lastMessage)
+        ? "movie"
+        : /غذا|شام|ناهار|صبحانه|خوراک/u.test(lastMessage) ? "food" : "decision";
+      await trackEvent(env, "chat_answered", null, { category, turns: messages.length });
       return json({ reply: reply.trim() });
     } catch (error) {
       console.error(JSON.stringify({

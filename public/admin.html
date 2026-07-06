@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102a25">
+  <title>داشبورد چی‌چی</title>
+  <link rel="icon" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <section id="login" class="login-card">
+    <img src="logo.png" alt="لوگوی چی‌چی">
+    <p class="kicker">پنل خصوصی</p>
+    <h1>داشبورد چی‌چی</h1>
+    <p>کلید مدیریت Cloudflare را وارد کن. کلید فقط در همین تب مرورگر نگه‌داری می‌شود.</p>
+    <form id="loginForm">
+      <input id="token" type="password" autocomplete="current-password" placeholder="کلید مدیریت" required>
+      <button type="submit">ورود امن</button>
+    </form>
+    <p id="loginError" class="error" role="alert"></p>
+  </section>
+
+  <main id="dashboard" hidden>
+    <header>
+      <div class="brand"><img src="logo.png" alt=""><div><strong>چی‌چی</strong><small>مرکز رفتار و ایمنی</small></div></div>
+      <div class="header-actions"><span id="updatedAt"></span><button id="refresh" type="button">تازه‌سازی</button><button id="logout" class="muted" type="button">خروج</button></div>
+    </header>
+
+    <section class="hero">
+      <div><p class="kicker">نمای کلی محصول</p><h1>کاربرها با چی‌چی چه می‌کنند؟</h1><p>آمار جمعی و ناشناس؛ بدون نمایش متن گفتگوهای خصوصی.</p></div>
+      <span class="live"><i></i> زنده</span>
+    </section>
+
+    <section id="stats" class="stats"></section>
+
+    <section class="grid">
+      <article class="panel wide"><div class="panel-title"><div><p class="kicker">۱۴ روز اخیر</p><h2>ریتم فعالیت</h2></div></div><div id="dailyChart" class="chart"></div></article>
+      <article class="panel"><p class="kicker">قیف آشنایی</p><h2>از سلیقه تا مچ</h2><div id="funnel" class="funnel"></div></article>
+      <article class="panel"><p class="kicker">نوع آشنایی</p><h2>هدف کاربران</h2><div id="intents" class="rings"></div></article>
+      <article class="panel"><p class="kicker">محبوب‌ها</p><h2>فیلم و غذا</h2><div id="popular" class="popular"></div></article>
+      <article class="panel"><p class="kicker">رفتار محصول</p><h2>رویدادهای ۳۰ روز</h2><div id="events" class="event-list"></div></article>
+      <article class="panel wide"><div class="panel-title"><div><p class="kicker">مدیریت ایمنی</p><h2>گزارش‌های اخیر</h2></div><span id="safetyBadge" class="badge"></span></div><div id="reports" class="reports"></div></article>
+    </section>
+  </main>
+  <script src="admin.js" defer></script>
+</body>
+</html>

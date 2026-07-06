@@ -1,5 +1,6 @@
 type SocialEnv = { DB: D1Database };
 type Session = { id: string; nickname: string; intent: string; is_adult: number };
+import { trackEvent } from "./analytics";
 
 const encoder = new TextEncoder();
 
@@ -39,6 +40,7 @@ export async function handleSocial(request: Request, env: SocialEnv, path: strin
     try {
       await env.DB.prepare("INSERT INTO profiles(id,nickname,token_hash,intent,is_adult) VALUES(?,?,?,?,?)")
         .bind(id, nickname, await sha256(token), intent, isAdult ? 1 : 0).run();
+      await trackEvent(env, "profile_created", id, { intent });
       return response({ token, profile: { id, nickname, intent } }, 201);
     } catch { return response({ error: "این نام مستعار قبلاً انتخاب شده است." }, 409); }
   }
@@ -54,6 +56,11 @@ export async function handleSocial(request: Request, env: SocialEnv, path: strin
     const statements = valid.map((t) => env.DB.prepare("INSERT INTO tastes(profile_id,kind,item,score) VALUES(?,?,?,?) ON CONFLICT(profile_id,kind,item) DO UPDATE SET score=excluded.score")
       .bind(me.id, t.kind, t.item!.trim(), t.score));
     await env.DB.batch(statements);
+    await trackEvent(env, "tastes_saved", me.id, {
+      count: valid.length,
+      movies: valid.filter((taste) => taste.kind === "movie").length,
+      foods: valid.filter((taste) => taste.kind === "food").length,
+    });
     return response({ saved: valid.length });
   }
 
@@ -68,7 +75,9 @@ export async function handleSocial(request: Request, env: SocialEnv, path: strin
         AND NOT EXISTS(SELECT 1 FROM blocks WHERE (blocker_id=? AND blocked_id=p.id) OR (blocker_id=p.id AND blocked_id=?))
       GROUP BY p.id HAVING common_count>0 ORDER BY match_percent DESC,common_count DESC LIMIT 12
     `).bind(me.id, me.id, me.id, me.id).all<{id:string;nickname:string;intent:string;common_count:number;match_percent:number;common_items:string}>();
-    return response({ matches: result.results.filter((m) => compatible(me.intent, m.intent) && (me.is_adult || m.intent === 'friendship')) });
+    const matches = result.results.filter((m) => compatible(me.intent, m.intent) && (me.is_adult || m.intent === 'friendship'));
+    await trackEvent(env, "matches_viewed", me.id, { count: matches.length });
+    return response({ matches });
   }
 
   if (path === "/api/social/request" && request.method === "POST") {
@@ -80,6 +89,7 @@ export async function handleSocial(request: Request, env: SocialEnv, path: strin
       env.DB.prepare("UPDATE introductions SET status='accepted' WHERE sender_id=? AND receiver_id=?").bind(me.id, body.profileId),
       env.DB.prepare("UPDATE introductions SET status='accepted' WHERE sender_id=? AND receiver_id=?").bind(body.profileId, me.id),
     ]);
+    await trackEvent(env, mutual ? "mutual_match" : "introduction_sent", me.id);
     return response({ matched: Boolean(mutual) });
   }
 
@@ -87,6 +97,7 @@ export async function handleSocial(request: Request, env: SocialEnv, path: strin
     const body = await request.json<{ profileId?: string }>();
     if (!body.profileId) return response({ error: "کاربر نامعتبر است." }, 400);
     await env.DB.prepare("INSERT INTO blocks(blocker_id,blocked_id) VALUES(?,?) ON CONFLICT DO NOTHING").bind(me.id, body.profileId).run();
+    await trackEvent(env, "profile_blocked", me.id);
     return response({ blocked: true });
   }
 
@@ -98,6 +109,7 @@ export async function handleSocial(request: Request, env: SocialEnv, path: strin
       .bind(crypto.randomUUID(), me.id, body.profileId, reason).run();
     await env.DB.prepare("INSERT INTO blocks(blocker_id,blocked_id) VALUES(?,?) ON CONFLICT DO NOTHING")
       .bind(me.id, body.profileId).run();
+    await trackEvent(env, "profile_reported", me.id);
     return response({ reported: true, blocked: true });
   }
 
