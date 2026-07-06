@@ -17,6 +17,16 @@ const roundLabel = document.querySelector("#roundLabel");
 const levelLabel = document.querySelector("#levelLabel");
 const nextQuestion = document.querySelector("#nextQuestion");
 const skipQuestion = document.querySelector("#skipQuestion");
+const socialFlow = document.querySelector("#socialFlow");
+const socialRegister = document.querySelector("#socialRegister");
+const socialRegisterForm = document.querySelector("#socialRegisterForm");
+const socialIntent = document.querySelector("#socialIntent");
+const socialAdult = document.querySelector("#socialAdult");
+const tasteSetup = document.querySelector("#tasteSetup");
+const tasteForm = document.querySelector("#tasteForm");
+const matchResults = document.querySelector("#matchResults");
+const matchCards = document.querySelector("#matchCards");
+const socialStatus = document.querySelector("#socialStatus");
 let messages = [];
 let busy = false;
 let duoPlayers = [];
@@ -44,7 +54,12 @@ function resizeInput() {
 
 function setMode(mode) {
   document.querySelectorAll("[data-mode]").forEach((button) => button.classList.toggle("active", button.dataset.mode === mode));
-  if (mode === "duo") {
+  socialFlow.hidden = mode !== "social";
+  if (mode === "social") {
+    welcome.hidden = true; messagesEl.hidden = true; duoSetup.hidden = true; duoGame.hidden = true; composerWrap.hidden = true;
+    const token = localStorage.getItem("chichi_social_token");
+    socialRegister.hidden = Boolean(token); tasteSetup.hidden = !token; matchResults.hidden = true;
+  } else if (mode === "duo") {
     welcome.hidden = true;
     messagesEl.hidden = true;
     duoSetup.hidden = false;
@@ -59,6 +74,38 @@ function setMode(mode) {
     composerWrap.hidden = false;
   }
 }
+
+async function socialApi(path, options = {}) {
+  const token = localStorage.getItem("chichi_social_token");
+  const response = await fetch(`/api/social/${path}`, { ...options, headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) } });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "خطایی پیش آمد");
+  return data;
+}
+
+function tasteItems(value, kind) { return value.split(/[،,]/).map((x) => x.trim()).filter(Boolean).map((item) => ({ kind, item, score: 5 })); }
+
+async function loadMatches() {
+  const data = await socialApi("matches");
+  matchCards.replaceChildren();
+  if (!data.matches.length) { matchCards.innerHTML = '<div class="empty-matches">هنوز هم‌سلیقه‌ای پیدا نشد. با اضافه‌شدن کاربران، پیشنهادها اینجا ظاهر می‌شوند.</div>'; return; }
+  data.matches.forEach((match) => {
+    const card = document.createElement("article"); card.className = "match-card";
+    card.innerHTML = `<span class="match-score">${match.match_percent}٪</span><h3>${match.nickname}</h3><p>سلیقه مشترک: ${match.common_items}</p><button type="button">درخواست آشنایی</button>`;
+    card.querySelector("button").addEventListener("click", async (event) => { const result = await socialApi("request", { method: "POST", body: JSON.stringify({ profileId: match.id }) }); event.currentTarget.textContent = result.matched ? "Match شد! 🎉" : "درخواست ارسال شد"; event.currentTarget.disabled = true; });
+    matchCards.append(card);
+  });
+}
+
+socialRegisterForm.addEventListener("submit", async (event) => {
+  event.preventDefault(); socialStatus.textContent = "در حال ساخت پروفایل…";
+  try { const data = await socialApi("register", { method: "POST", body: JSON.stringify({ nickname: document.querySelector("#socialNickname").value, intent: socialIntent.value, isAdult: socialAdult.checked }) }); localStorage.setItem("chichi_social_token", data.token); socialRegister.hidden = true; tasteSetup.hidden = false; socialStatus.textContent = "پروفایل ساخته شد."; } catch (error) { socialStatus.textContent = error.message; }
+});
+tasteForm.addEventListener("submit", async (event) => {
+  event.preventDefault(); socialStatus.textContent = "در حال پیداکردن هم‌سلیقه‌ها…";
+  try { const tastes = [...tasteItems(document.querySelector("#movieTastes").value,"movie"), ...tasteItems(document.querySelector("#foodTastes").value,"food")]; await socialApi("tastes", { method: "PUT", body: JSON.stringify({ tastes }) }); tasteSetup.hidden = true; matchResults.hidden = false; await loadMatches(); socialStatus.textContent = ""; } catch (error) { socialStatus.textContent = error.message; }
+});
+document.querySelector("#editTastes").addEventListener("click", () => { matchResults.hidden = true; tasteSetup.hidden = false; });
 
 function renderDuoQuestion() {
   const item = duoQuestions[duoRound % duoQuestions.length];
@@ -183,6 +230,7 @@ resetButton.addEventListener("click", () => {
   messagesEl.hidden = false;
   duoSetup.hidden = true;
   duoGame.hidden = true;
+  socialFlow.hidden = true;
   composerWrap.hidden = false;
   input.value = "";
   resizeInput();

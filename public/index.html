@@ -37,6 +37,9 @@
           <button class="mode-card" type="button" data-mode="duo">
             <span>🤝</span><strong>آشنایی دونفره</strong><small>سؤال‌های نوبتی برای شناخت بهتر</small>
           </button>
+          <button class="mode-card" type="button" data-mode="social">
+            <span>✨</span><strong>پیداکردن هم‌سلیقه</strong><small>فیلم و غذا، بعد آشنایی اختیاری</small>
+          </button>
         </div>
         <div class="suggestions" aria-label="پیشنهادهای شروع">
           <button type="button" data-prompt="برای شام یک غذای سریع و کم‌هزینه پیشنهاد بده">🍜 شام سریع و اقتصادی</button>
@@ -69,6 +72,33 @@
           <button id="nextQuestion" class="primary-button" type="button">سؤال بعدی</button>
         </div>
         <p class="duo-note">جواب درست یا غلط نداریم؛ فقط با صداقت و احترام گوش کنید.</p>
+      </section>
+
+      <section id="socialFlow" class="social-flow" hidden>
+        <div id="socialRegister" class="social-panel">
+          <p class="eyebrow">هم‌سلیقه‌ی تو کیه؟</p>
+          <h2>اول یک معرفی کوتاه</h2>
+          <form id="socialRegisterForm" class="social-form">
+            <label>نام مستعار<input id="socialNickname" maxlength="24" placeholder="مثلاً شب‌گرد" required></label>
+            <label>نوع آشنایی<select id="socialIntent"><option value="friendship">دوستی</option><option value="romantic">عاطفی</option><option value="both">هردو</option></select></label>
+            <label id="adultLabel" class="check-label"><input id="socialAdult" type="checkbox"> بالای ۱۸ سال هستم</label>
+            <button type="submit">ساخت پروفایل امن</button>
+          </form>
+        </div>
+        <div id="tasteSetup" class="social-panel" hidden>
+          <p class="eyebrow">سلیقه‌ات را بگو</p><h2>چه چیزهایی دوست داری؟</h2>
+          <p>حداقل یک فیلم و یک غذا؛ با «،» از هم جدا کن.</p>
+          <form id="tasteForm" class="social-form">
+            <label>فیلم‌ها<input id="movieTastes" placeholder="Interstellar، Parasite، جدایی نادر از سیمین"></label>
+            <label>غذاها<input id="foodTastes" placeholder="پاستا، کباب، سوشی"></label>
+            <button type="submit">پیداکردن هم‌سلیقه‌ها</button>
+          </form>
+        </div>
+        <div id="matchResults" class="social-panel" hidden>
+          <div class="social-heading"><div><p class="eyebrow">پیشنهاد برای تو</p><h2>آدم‌های هم‌سلیقه</h2></div><button id="editTastes" class="ghost-button" type="button">ویرایش سلیقه</button></div>
+          <div id="matchCards" class="match-cards"></div>
+        </div>
+        <p id="socialStatus" class="social-status" role="status"></p>
       </section>
     </section>
 
