@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f4ed">
+  <meta name="description" content="چت‌بات فارسی برای انتخاب سریع غذا و فیلم">
+  <title>چی‌چی | چی انتخاب کنم؟</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="خانه">
+        <span class="brand-mark" aria-hidden="true"><img src="logo.png" alt=""></span>
+        <span><strong>چی‌چی</strong><small>دستیار انتخاب</small></span>
+      </a>
+      <button id="resetButton" class="icon-button" type="button" aria-label="گفت‌وگوی تازه" title="گفت‌وگوی تازه">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></svg>
+      </button>
+    </header>
+
+    <section id="chat" class="chat" aria-live="polite">
+      <div id="welcome" class="welcome">
+        <div class="hero-orbit"><span>؟</span></div>
+        <p class="eyebrow">کمتر فکر کن، بهتر انتخاب کن</p>
+        <h1>امروز چی می‌چسبه؟</h1>
+        <p class="intro">انتخاب سخت داری یا می‌خوای با یک نفر بهتر آشنا بشی؟ حالت دلخواهت رو انتخاب کن.</p>
+        <div class="mode-picker" aria-label="انتخاب حالت">
+          <button class="mode-card active" type="button" data-mode="decision">
+            <span>🎯</span><strong>انتخاب برای من</strong><small>بین گزینه‌ها یکی را انتخاب می‌کنم</small>
+          </button>
+          <button class="mode-card" type="button" data-mode="duo">
+            <span>🤝</span><strong>آشنایی دونفره</strong><small>سؤال‌های نوبتی برای شناخت بهتر</small>
+          </button>
+        </div>
+        <div class="suggestions" aria-label="پیشنهادهای شروع">
+          <button type="button" data-prompt="برای شام یک غذای سریع و کم‌هزینه پیشنهاد بده">🍜 شام سریع و اقتصادی</button>
+          <button type="button" data-prompt="امشب با دوستم چه فیلم هیجان‌انگیزی ببینیم؟">🎬 فیلم برای امشب</button>
+          <button type="button" data-prompt="بین فیلم Parasite و Knives Out برای امشب فقط یکی را انتخاب کن و دلیلش را بگو">⚖️ انتخاب بین دو فیلم</button>
+          <button type="button" data-prompt="بین پیتزا، برگر و غذای ایرانی یکی را تصادفی انتخاب کن">🎲 شانسی انتخاب کن</button>
+        </div>
+      </div>
+      <div id="messages" class="messages"></div>
+
+      <section id="duoSetup" class="duo-setup" hidden>
+        <p class="eyebrow">حالت آشنایی دونفره</p>
+        <h2>دو اسم، یک گفت‌وگوی خوب</h2>
+        <p>هر نفر نوبتی جواب می‌دهد. ردکردن هر سؤال کاملاً آزاد است.</p>
+        <form id="duoForm" class="duo-form">
+          <label>نفر اول<input id="playerOne" maxlength="24" placeholder="مثلاً سارا" required></label>
+          <label>نفر دوم<input id="playerTwo" maxlength="24" placeholder="مثلاً علی" required></label>
+          <button type="submit">شروع کنیم</button>
+        </form>
+      </section>
+
+      <section id="duoGame" class="duo-game" hidden>
+        <div class="duo-progress"><span id="roundLabel">سؤال ۱</span><span id="levelLabel">گرم‌شدن</span></div>
+        <div class="question-card">
+          <span id="turnBadge" class="turn-badge"></span>
+          <p id="duoQuestion"></p>
+        </div>
+        <div class="duo-actions">
+          <button id="skipQuestion" class="ghost-button" type="button">رد کردن</button>
+          <button id="nextQuestion" class="primary-button" type="button">سؤال بعدی</button>
+        </div>
+        <p class="duo-note">جواب درست یا غلط نداریم؛ فقط با صداقت و احترام گوش کنید.</p>
+      </section>
+    </section>
+
+    <footer id="composerWrap" class="composer-wrap">
+      <form id="chatForm" class="composer">
+        <textarea id="messageInput" rows="1" maxlength="1200" placeholder="مثلاً یک فیلم آرام برای آخر شب..." aria-label="پیام شما" required></textarea>
+        <button id="sendButton" type="submit" aria-label="ارسال پیام">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4 14-3-6-7-1Z"/><path d="m12 13 7-8"/></svg>
+        </button>
+      </form>
+      <p>پیشنهاد هوش مصنوعی ممکن است بی‌نقص نباشد.</p>
+    </footer>
+  </main>
+  <script src="app.js" defer></script>
+</body>
+</html>
