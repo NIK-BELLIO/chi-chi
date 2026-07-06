@@ -1,6 +1,6 @@
 PRAGMA foreign_keys = ON;
 
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   id TEXT PRIMARY KEY,
   nickname TEXT NOT NULL UNIQUE COLLATE NOCASE,
   token_hash TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE profiles (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tastes (
+CREATE TABLE IF NOT EXISTS tastes (
   profile_id TEXT NOT NULL,
   kind TEXT NOT NULL CHECK(kind IN ('movie','food')),
   item TEXT NOT NULL COLLATE NOCASE,
@@ -19,7 +19,7 @@ CREATE TABLE tastes (
   FOREIGN KEY(profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
-CREATE TABLE introductions (
+CREATE TABLE IF NOT EXISTS introductions (
   sender_id TEXT NOT NULL,
   receiver_id TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','accepted','declined')),
@@ -29,14 +29,14 @@ CREATE TABLE introductions (
   FOREIGN KEY(receiver_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
-CREATE TABLE blocks (
+CREATE TABLE IF NOT EXISTS blocks (
   blocker_id TEXT NOT NULL,
   blocked_id TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(blocker_id, blocked_id)
 );
 
-CREATE TABLE reports (
+CREATE TABLE IF NOT EXISTS reports (
   id TEXT PRIMARY KEY,
   reporter_id TEXT NOT NULL,
   reported_id TEXT NOT NULL,
@@ -44,6 +44,6 @@ CREATE TABLE reports (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_tastes_lookup ON tastes(kind, item, score);
-CREATE INDEX idx_introductions_receiver ON introductions(receiver_id, status);
-CREATE INDEX idx_profiles_discovery ON profiles(discoverable, intent);
+CREATE INDEX IF NOT EXISTS idx_tastes_lookup ON tastes(kind, item, score);
+CREATE INDEX IF NOT EXISTS idx_introductions_receiver ON introductions(receiver_id, status);
+CREATE INDEX IF NOT EXISTS idx_profiles_discovery ON profiles(discoverable, intent);
